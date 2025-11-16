@@ -36,16 +36,16 @@ Formato de entrada:
 - Você pode enviar já no formato pré-processado (colunas one-hot como `cp_atypical angina`, `restecg_normal`, etc.)
 - OU enviar colunas brutas `cp`, `restecg`, `slope`, `thal`, `sex` que serão convertidas automaticamente.
 
-Mapeamentos aceitos (valores inteiros):
-- `cp`: valores (0..3 ou 1..4) mapeados para: típica angina, atípica angina, não-anginal, assintomático (assintomático é agrupado em não-anginal porque a coluna específica não existe no modelo)
-- `restecg`: 0 → normal, 1 → ST-T abnormality, 2 → LVH (agrupado em ST-T abnormality porque a coluna LVH não existe no modelo)
-- `slope`: 0/1 → upsloping, 1/2 → flat, 2/3 → downsloping (agrupado em flat para manter o número de colunas)
-- `thal`: 0/1 → normal, 1/2 → fixed defect (agrupado em normal porque a coluna fixed defect não existe), 2/3 → reversable defect
+Mapeamentos simples (valores inteiros → strings como na Aula 2):
 - `sex`: 0 → Female, 1 → Male
+- `cp`: 0 → typical angina, 1 → atypical angina, 2 → non-anginal, 3 → asymptomatic
+- `restecg`: 0 → normal, 1 → st-t abnormality, 2 → left ventricular hypertrophy
+- `slope`: 0 → upsloping, 1 → flat, 2 → downsloping
+- `thal`: 0 → normal, 1 → fixed defect, 2 → reversable defect
 
-Se uma coluna já estiver one-hot, ela é mantida. Colunas esperadas e ausentes são preenchidas com 0/False.
+Após mapear para strings, aplicamos **`pd.get_dummies(..., drop_first=True)` exatamente como na Aula 2** (veja notebook de experimentação). Assim as colunas geradas seguem o mesmo padrão do dataset pré-processado. Se alguma categoria não aparecer em um batch, a coluna correspondente é adicionada depois na etapa de alinhamento com valor 0.
 
-Ordem das features: a API alinha automaticamente as colunas ao mesmo conjunto e ordem usadas no treinamento do modelo. Quaisquer colunas extras são descartadas e faltantes são adicionadas com 0.
+Ordem das features: a API alinha automaticamente ao conjunto e ordem originais do treinamento (via `feature_names_in_`). Colunas extras são descartadas e faltantes adicionadas com 0.
 
 ### Exemplo de requisição
 ```bash
@@ -80,3 +80,41 @@ Também suporta batch via `instances`:
 ```
 
 Observação: a API replica o feature engineering essencial da Aula 3 (ex.: `age_squared`, `bp_chol_ratio`, etc.) quando as colunas base são informadas. Caso você já envie essas colunas engenheiradas, elas serão respeitadas.
+
+## Container Docker
+
+Você pode executar a API em um container Docker para facilitar distribuição.
+
+### Build da imagem (de dentro de `aula_04_implantacao`)
+Execute os comandos abaixo estando dentro da pasta `aula_04_implantacao`.
+
+```bash
+docker build -t heart-api:latest -f Dockerfile ..
+```
+
+### Executar o container
+```bash
+docker run --rm -p 5000:5000 heart-api:latest
+```
+
+### Verificar
+```bash
+curl http://localhost:5000/
+```
+
+### Predição
+```bash
+curl -X POST http://localhost:5000/heart-disease-predict \
+	-H "Content-Type: application/json" \
+	-d '{"age":63,"sex":1,"cp":3,"trestbps":145,"chol":233,"fbs":1,"restecg":0,"thalch":150,"exang":0,"oldpeak":2.3,"slope":0,"ca":0,"thal":1}'
+```
+
+### Personalizações
+- Variável `MODEL_PATH` pode ser sobrescrita: `docker run -e MODEL_PATH=/app/models/best_random_forest.joblib ...`
+- Para uso de Gunicorn, instale `gunicorn` e ajuste `CMD` no Dockerfile para: `gunicorn -b 0.0.0.0:5000 app:app`
+
+### .dockerignore
+Arquivo `.dockerignore` criado para reduzir o tamanho da imagem (ignora `mlruns/`, `data/`, `venv/`, caches, etc.).
+
+---
+Esta seção demonstra para os alunos a equivalência entre o encoding da Aula 2 (strings + get_dummies(drop_first)) e o fluxo automatizado de produção dentro do container.

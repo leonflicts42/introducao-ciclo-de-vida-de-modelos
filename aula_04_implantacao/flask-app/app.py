@@ -1,7 +1,7 @@
 import os
 import sys
 from datetime import datetime
-from typing import List, Dict, Any, Tuple
+from typing import List, Dict, Any, Tuple, Optional
 import joblib
 import pandas as pd
 from flask import Flask, jsonify, request
@@ -21,7 +21,7 @@ DEFAULT_MODEL_PATH = _abs_path("..", "..", "models", "best_random_forest.joblib"
 app = Flask(__name__)
 model = None
 model_path_loaded = None
-preprocessor: HeartDiseasePreprocessor | None = None
+preprocessor: Optional[HeartDiseasePreprocessor] = None
 
 
 def load_model() -> Tuple[Any, str]:
