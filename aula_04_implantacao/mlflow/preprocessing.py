@@ -1,6 +1,40 @@
 import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
 
+class MissingValueImputer(BaseEstimator, TransformerMixin):
+    """Imputa valores faltantes usando mediana (numéricas) e moda (categóricas).
+    Esta classe segue a estratégia aplicada na etapa de experimentação (Aula 2),
+    agora encapsulada para reutilização em treino e inferência.
+    """
+    def __init__(self, numeric_cols=None, categorical_cols=None):
+        self.numeric_cols = numeric_cols or []
+        self.categorical_cols = categorical_cols or []
+        self.num_medians_ = {}
+        self.cat_modes_ = {}
+
+    def fit(self, X, y=None):
+        # Calcula mediana para colunas numéricas presentes
+        for col in self.numeric_cols:
+            if col in X.columns:
+                self.num_medians_[col] = X[col].median()
+        # Calcula moda para colunas categóricas presentes (ignora se todas NaN)
+        for col in self.categorical_cols:
+            if col in X.columns:
+                mode_series = X[col].mode()
+                if len(mode_series) > 0:
+                    self.cat_modes_[col] = mode_series[0]
+        return self
+
+    def transform(self, X):
+        X_copy = X.copy()
+        for col, val in self.num_medians_.items():
+            if col in X_copy.columns:
+                X_copy[col] = X_copy[col].fillna(val)
+        for col, val in self.cat_modes_.items():
+            if col in X_copy.columns:
+                X_copy[col] = X_copy[col].fillna(val)
+        return X_copy
+
 class CategoricalEncoder(BaseEstimator, TransformerMixin):
     """Aplica encoding categórico e one-hot encoding"""
     def __init__(self):
