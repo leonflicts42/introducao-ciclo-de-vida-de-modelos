@@ -1,0 +1,15 @@
+# See https://docs.databricks.com/api/workspace/servingendpoints/create for more information
+endpoint_config:
+  config:
+    served_entities:
+      - name: heart-disease-model
+        workload_type: CPU
+        workload_size: Small
+        scale_to_zero_enabled: true
+    traffic_config:
+      routes:
+        - served_model_name: heart-disease-model
+          traffic_percentage: 100
+  tags:
+    - key: project
+      value: heart-disease
