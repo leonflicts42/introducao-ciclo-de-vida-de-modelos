@@ -36,7 +36,16 @@ class MissingValueImputer(BaseEstimator, TransformerMixin):
         return X_copy
 
 class CategoricalEncoder(BaseEstimator, TransformerMixin):
-    """Aplica encoding categórico e one-hot encoding"""
+    """Aplica mapeamentos categóricos e garante one-hot encoding com colunas estáveis.
+
+    Problema anterior: ao usar `drop_first=True` e realizar inferência em uma única linha,
+    algumas dummies não eram geradas, causando mismatch de nomes de features.
+
+    Solução: armazenar a lista completa de colunas geradas no `fit` e, no `transform`,
+    adicionar colunas ausentes preenchidas com 0, retornando sempre as mesmas colunas
+    na mesma ordem. Não usamos `drop_first` para evitar perder todas as dummies em
+    casos de entrada com categoria única.
+    """
     def __init__(self):
         self.categorical_mappings = {
             'sex': {0: 'Female', 1: 'Male'},
@@ -46,24 +55,46 @@ class CategoricalEncoder(BaseEstimator, TransformerMixin):
             'thal': {0: 'normal', 1: 'fixed defect', 2: 'reversable defect'}
         }
         self.categorical_cols = ['sex', 'cp', 'restecg', 'slope', 'thal']
-    
-    def fit(self, X, y=None):
-        return self
-    
-    def transform(self, X):
+        self.one_hot_columns_ = []  # colunas geradas após encoding
+
+    def _apply_mappings(self, X):
         X_copy = X.copy()
-        
-        # Aplicar mapeamentos categóricos
         for col, mapping in self.categorical_mappings.items():
             if col in X_copy.columns:
                 X_copy[col] = X_copy[col].map(lambda x: mapping.get(int(x) if pd.api.types.is_numeric_dtype(X_copy[col]) else x, x))
-        
-        # One-hot encoding
-        cols_to_encode = [c for c in self.categorical_cols if c in X_copy.columns]
-        if cols_to_encode:
-            X_copy = pd.get_dummies(X_copy, columns=cols_to_encode, drop_first=True)
-        
         return X_copy
+
+    def fit(self, X, y=None):
+        X_mapped = self._apply_mappings(X)
+        cols_to_encode = [c for c in self.categorical_cols if c in X_mapped.columns]
+        if cols_to_encode:
+            X_encoded = pd.get_dummies(X_mapped, columns=cols_to_encode, drop_first=False)
+        else:
+            X_encoded = X_mapped
+        self.one_hot_columns_ = X_encoded.columns.tolist()
+        return self
+
+    def transform(self, X):
+        X_mapped = self._apply_mappings(X)
+        cols_to_encode = [c for c in self.categorical_cols if c in X_mapped.columns]
+        if cols_to_encode:
+            X_encoded = pd.get_dummies(X_mapped, columns=cols_to_encode, drop_first=False)
+        else:
+            X_encoded = X_mapped.copy()
+
+        # Adicionar colunas ausentes com zeros
+        missing_cols = [c for c in self.one_hot_columns_ if c not in X_encoded.columns]
+        for col in missing_cols:
+            X_encoded[col] = 0
+
+        # Remover colunas extras (caso apareçam categorias desconhecidas)
+        extra_cols = [c for c in X_encoded.columns if c not in self.one_hot_columns_]
+        if extra_cols:
+            X_encoded = X_encoded.drop(columns=extra_cols)
+
+        # Reordenar conforme fit
+        X_encoded = X_encoded[self.one_hot_columns_]
+        return X_encoded
 
 
 class FeatureEngineer(BaseEstimator, TransformerMixin):
