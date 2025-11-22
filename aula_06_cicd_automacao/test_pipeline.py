@@ -14,7 +14,7 @@ from sklearn.ensemble import RandomForestClassifier
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from preprocessing import CategoricalEncoder, FeatureEngineer, MissingValueImputer
-from train import load_and_prepare_data, create_pipeline, BASELINE_PARAMS
+from train import load_and_prepare_data, create_pipeline, PARAMS
 
 
 class TestPreprocessing(unittest.TestCase):
@@ -134,7 +134,7 @@ class TestTrainingScript(unittest.TestCase):
         numeric_cols = ['age', 'trestbps', 'chol']
         categorical_cols = ['sex', 'cp']
         
-        pipeline = create_pipeline(BASELINE_PARAMS, numeric_cols, categorical_cols)
+        pipeline = create_pipeline(PARAMS, numeric_cols, categorical_cols)
         
         # Verificar que pipeline tem os steps corretos
         step_names = [name for name, _ in pipeline.steps]
@@ -150,9 +150,9 @@ class TestTrainingScript(unittest.TestCase):
     
     def test_baseline_params(self):
         """Testa que hiperparâmetros baseline estão definidos."""
-        self.assertIn('n_estimators', BASELINE_PARAMS)
-        self.assertIn('random_state', BASELINE_PARAMS)
-        self.assertEqual(BASELINE_PARAMS['random_state'], 42)
+        self.assertIn('n_estimators', PARAMS)
+        self.assertIn('random_state', PARAMS)
+        self.assertEqual(PARAMS['random_state'], 42)
         
         print("✓ Test Baseline Params: OK")
 

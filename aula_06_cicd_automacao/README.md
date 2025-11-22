@@ -48,14 +48,15 @@ cd aula_06_cicd_automacao
 python test_pipeline.py
 ```
 
-#### Treinar modelo baseline:
+#### Treinar modelo (baseline por padrão):
 ```bash
-python train.py --model-type baseline --min-accuracy 0.75
+python train.py --min-accuracy 0.75
 ```
 
-#### Treinar modelo otimizado:
+#### Trocar para versão otimizada:
+Edite `train.py`, descomente o bloco "VERSÃO OTIMIZADA" e comente a linha `ACTIVE_PARAMS = BASELINE_PARAMS`, depois execute:
 ```bash
-python train.py --model-type optimized --min-accuracy 0.75
+python train.py --min-accuracy 0.75
 ```
 
 #### Visualizar resultados no MLflow:
@@ -79,48 +80,49 @@ O workflow é acionado automaticamente quando:
 - Roda `test_pipeline.py`
 - Valida transformers e funções
 
-**Job 2: Treinar Baseline**
-- Treina modelo com hiperparâmetros padrão
+**Job 2: Treinar Modelo (ACTIVE_PARAMS)**
+- Usa os hiperparâmetros atualmente ativos em `train.py`
 - Loga no MLflow
 - Registra no Model Registry se acurácia >= 0.75
 
-**Job 3: Treinar Otimizado** (condicional)
-- Executa se houver `[train-optimized]` no commit message
-- Usa hiperparâmetros otimizados da Aula 03
+**Job 3: Re-treinar após alteração para otimizado** (condicional)
+- Executa se houver `[train-optimized]` no commit message (indicando que você editou para a versão otimizada)
+- Usa hiperparâmetros que foram ativados ao descomentar o bloco em `train.py`
 - Promove para "Production" se melhor que baseline
 
 ---
 
 ## 🎯 Exemplo Prático para Alunos
 
-### Cenário 1: Testar o Baseline
+### Cenário 1: Testar o Baseline (padrão)
 ```bash
-# Faça alterações no código
+# (Opcional) Ajuste hiperparâmetros baseline em BASELINE_PARAMS
 git add aula_06_cicd_automacao/train.py
-git commit -m "Ajuste no modelo baseline"
+git commit -m "Ajuste no modelo (baseline)"
 git push origin main
 ```
-→ Pipeline executa: testes + treinamento baseline
+→ Pipeline executa: testes + treino baseline
 
 ### Cenário 2: Treinar Versão Otimizada
+1. Edite `train.py` e descomente o bloco "VERSÃO OTIMIZADA".
+2. Comente a linha `ACTIVE_PARAMS = BASELINE_PARAMS`.
 ```bash
 git add aula_06_cicd_automacao/train.py
-git commit -m "[train-optimized] Nova versão com hiperparâmetros otimizados"
+git commit -m "[train-optimized] Ativa hiperparâmetros otimizados"
 git push origin main
 ```
-→ Pipeline executa: testes + baseline + otimizado
+→ Pipeline executa: testes + treino otimizado (job condicional)
 
 ### Cenário 3: Execução Manual
 No GitHub:
 1. Vá para **Actions** → **CI/CD Pipeline - Heart Disease Model**
-2. Clique em **Run workflow**
-3. Escolha o tipo de modelo (baseline/optimized)
+2. Clique em **Run workflow** (não há mais seleção de modelo, usa o código atual)
 
 ---
 
 ## 📋 Hiperparâmetros dos Modelos
 
-### Baseline (Configuração Padrão)
+### Baseline (Configuração Padrão - ACTIVE_PARAMS)
 ```python
 {
     'n_estimators': 100,
@@ -132,7 +134,7 @@ No GitHub:
 }
 ```
 
-### Optimized (Otimizados na Aula 03)
+### Optimized (Descomentar bloco em `train.py`)
 ```python
 {
     'n_estimators': 124,
@@ -232,6 +234,6 @@ Este exemplo é propositalmente **simples e didático** para facilitar o aprendi
 
 Os alunos podem:
 1. Rodar localmente e entender cada componente
-2. Fazer alterações e ver o pipeline em ação
+2. Comentar/descomentar `ACTIVE_PARAMS` para trocar variante
 3. Comparar baseline vs otimizado no MLflow UI
 4. Aprender conceitos de CI/CD de forma prática

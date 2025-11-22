@@ -19,14 +19,15 @@ cd aula_06_cicd_automacao
 python test_pipeline.py
 ```
 
-### 2. Treinar Modelo Baseline
+### 2. Treinar Modelo (Baseline por padrão)
 ```bash
-python train.py --model-type baseline --min-accuracy 0.75
+python train.py --min-accuracy 0.75
 ```
 
-### 3. Treinar Modelo Otimizado
+### 3. Trocar para Modelo Otimizado
+Edite `train.py` e descomente o bloco "VERSÃO OTIMIZADA" (comentando a linha `ACTIVE_PARAMS = BASELINE_PARAMS`). Depois rode:
 ```bash
-python train.py --model-type optimized --min-accuracy 0.75
+python train.py --min-accuracy 0.75
 ```
 
 ### 4. Visualizar no MLflow
@@ -47,7 +48,7 @@ git push origin main
 ```
 → Pipeline executa: **testes + baseline**
 
-### Cenário 2: Treinar Baseline + Otimizado
+### Cenário 2: Treinar Versão Otimizada
 ```bash
 git add aula_06_cicd_automacao/train.py
 git commit -m "[train-optimized] Nova versão com ajustes"
@@ -57,9 +58,7 @@ git push origin main
 
 ### Cenário 3: Execução Manual
 1. Acesse GitHub → **Actions** → **CI/CD Pipeline - Heart Disease Model**
-2. Clique em **Run workflow**
-3. Selecione o tipo de modelo
-4. Clique em **Run workflow**
+2. Clique em **Run workflow** (usa o código atual; comente/descomente antes de executar)
 
 ---
 
@@ -84,7 +83,7 @@ git push origin main
 ```bash
 cd aula_06_cicd_automacao
 python test_pipeline.py
-python train.py --model-type baseline
+python train.py --min-accuracy 0.75
 mlflow ui
 ```
 
@@ -100,7 +99,7 @@ BASELINE_PARAMS = {
 
 ### Passo 3: Testar Nova Versão
 ```bash
-python train.py --model-type baseline
+python train.py --min-accuracy 0.75
 # Compare as métricas no MLflow UI
 ```
 
