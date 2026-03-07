@@ -1,0 +1,6 @@
+{
+  "run_id": "23894b43ad5b4633ae58bd8310830b15",
+  "model_uri": "models:/m-178819028e63452eb3a74bdf0943def0",
+  "test_accuracy": 0.8532608695652174,
+  "logged_at": "2026-01-15T22:53:11.531371"
+}

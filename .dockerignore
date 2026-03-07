@@ -1,0 +1,20 @@
+# Ignorar ambientes locais e caches
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# MLflow runs e artefatos de experimento (não necessários para runtime da API)
+**/mlruns/
+
+# Dados brutos (opcional manter fora da imagem para reduzir tamanho)
+data/
+
+# Git
+.git
+.gitignore
+
+# Outros
+.ipynb_checkpoints/
+*.log

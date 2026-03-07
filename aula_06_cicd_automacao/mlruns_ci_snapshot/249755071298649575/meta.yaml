@@ -1,0 +1,6 @@
+artifact_location: file:///home/runner/work/introducao-ciclo-de-vida-de-modelos/introducao-ciclo-de-vida-de-modelos/aula_06_cicd_automacao/mlruns_ci/249755071298649575
+creation_time: 1763862254172
+experiment_id: '249755071298649575'
+last_update_time: 1763862254172
+lifecycle_stage: active
+name: heart-disease-cicd

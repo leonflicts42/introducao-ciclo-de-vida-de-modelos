@@ -1,0 +1,45 @@
+{
+  "model_details": {
+    "name": "Credit Approval Model",
+    "version": "1.0",
+    "date": "2025-11-29",
+    "type": "Random Forest Classifier",
+    "owner": "Equipe de Risco"
+  },
+  "intended_use": {
+    "primary_use": "Triagem inicial de propostas de crédito",
+    "users": "Analistas de crédito",
+    "out_of_scope": "Não utilizar como decisão final sem revisão humana"
+  },
+  "factors": {
+    "relevant_factors": "renda, score de crédito, debt_ratio, defaults",
+    "evaluation_factors": "Região (Norte/Sul)"
+  },
+  "metrics": {
+    "model_performance": {
+      "accuracy": 0.9,
+      "dataset_size": 400
+    },
+    "fairness_metrics": {
+      "accuracy_by_region": {
+        "Norte": 0.892018779342723,
+        "Sul": 0.9090909090909091
+      },
+      "max_difference": 0.01707212974818606
+    }
+  },
+  "training_data": {
+    "dataset": "Synthetic Credit Approval Demo",
+    "size": 1600,
+    "preprocessing": "StandardScaler para numéricos + OneHotEncoder para categóricos"
+  },
+  "ethical_considerations": {
+    "sensitive_data": "Inclui atributo de região (potencial proxy socioeconômico)",
+    "risks": "Possível discriminação contra regiões específicas",
+    "mitigations": "Monitorar métricas por região e aplicar Fairlearn quando necessário"
+  },
+  "recommendations": {
+    "ideal_conditions": "Uso combinado com políticas de crédito transparentes",
+    "monitoring": "Revisar fairness trimestralmente e validar com stakeholders"
+  }
+}

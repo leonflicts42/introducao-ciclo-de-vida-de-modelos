@@ -1,0 +1,15 @@
+creation_timestamp: 1763862257561
+current_stage: None
+deployment_job_state: null
+description: null
+last_updated_timestamp: 1763862257561
+model_id: m-966d0283fd27416e9ccda4410ce28dff
+name: heart-disease-model
+run_id: b44600f3c0ad4d5a97dddeccf704ab2c
+run_link: null
+source: models:/m-966d0283fd27416e9ccda4410ce28dff
+status: READY
+status_message: null
+storage_location: file:///home/runner/work/introducao-ciclo-de-vida-de-modelos/introducao-ciclo-de-vida-de-modelos/aula_06_cicd_automacao/mlruns_ci/249755071298649575/models/m-966d0283fd27416e9ccda4410ce28dff/artifacts
+user_id: null
+version: 1
